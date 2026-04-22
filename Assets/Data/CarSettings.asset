@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7304fec1db25f974ba8787163d12c184, type: 3}
+  m_Name: CarSettings
+  m_EditorClassIdentifier: Assembly-CSharp::CarConfigurationSO
+  TotalGas: 0
+  CurrentGas: 0
+  MotorForce: 1500
+  DirectionForce: 1
+  BreakForce: 200
+  GasConsumedBySecond: 1
+  FirstSpeedThreshold: 10
+  SecondSpeedThreshold: 30
+  ThirdSpeedThreshold: 50
+  CrashDamage1: 5
+  CrashDamage2: 10
+  CrashDamage3: 20
