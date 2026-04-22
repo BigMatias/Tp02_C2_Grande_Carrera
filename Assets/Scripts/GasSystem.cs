@@ -48,8 +48,9 @@ public class GasSystem : MonoBehaviour
 
     }
 
-    public void RecoverGas(int plus)
+    public void RecoverGas(float plus)
     {
+        Debug.Log(plus);
         if (plus < 0)
         {
             return;

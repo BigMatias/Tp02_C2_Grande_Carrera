@@ -4,33 +4,35 @@ using UnityEngine.UI;
 public class UIGas: MonoBehaviour
 {
     [SerializeField] private GasSystem target;
-    [SerializeField] private Image barLife;
+    [SerializeField] private Image barGas;
 
     private void Awake()
     {
-        target.onGasUpdated += HealthSystem_onLifeUpdated;
-        target.onGasDepleted += HealthSystem_onDie;
+        target.onGasUpdated += Target_onGasUpdated;
+        target.onGasDepleted += Target_onGasDepleted;
     }
 
     private void Start()
     {
-        barLife.fillAmount = 100;
+        barGas.fillAmount = 100;
     }
 
     private void OnDestroy()
     {
-        target.onGasUpdated -= HealthSystem_onLifeUpdated;
-        target.onGasDepleted -= HealthSystem_onDie;
+        target.onGasUpdated -= Target_onGasUpdated;
+        target.onGasDepleted -= Target_onGasDepleted;
     }
 
-    public void HealthSystem_onLifeUpdated(float current, float max)
+    private void Target_onGasDepleted()
     {
+        barGas.fillAmount = 0;
+    }
+
+    private void Target_onGasUpdated(float current, float max)
+    {
+        Debug.Log(current);
         float lerp = current / (float)max;
-        barLife.fillAmount = lerp;
+        barGas.fillAmount = lerp;
     }
 
-    private void HealthSystem_onDie()
-    {
-        barLife.fillAmount = 0;
-    }
 }

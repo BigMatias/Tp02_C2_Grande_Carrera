@@ -1,5 +1,8 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
+using static UnityEngine.GraphicsBuffer;
 
 public class CarController : MonoBehaviour
 {
@@ -8,6 +11,7 @@ public class CarController : MonoBehaviour
     [SerializeField] private float inputDirection;
     [SerializeField] private float inputBreak;
     [SerializeField] private CarConfigurationSO carConfigurationSO;
+    [SerializeField] private Transform car;
 
     [Header("Cameras: ")]
     [SerializeField] private Camera thirdPersonCamera;
@@ -28,6 +32,9 @@ public class CarController : MonoBehaviour
     [Header("HealthSystem")]
     [SerializeField] private Transform healthPoint;
 
+    float yaw;
+    float pitch;
+
     private HealthSystem healthSystem;
     private GasSystem gasSystem;
     private Rigidbody rb;
@@ -38,6 +45,8 @@ public class CarController : MonoBehaviour
         healthSystem = GetComponent<HealthSystem>();
         gasSystem = GetComponent<GasSystem>();
         rb = GetComponent<Rigidbody>();
+        GasStation.onGasStationEntered += GasStation_onGasStationEntered;
+        Workshop.onWorkshopEntered += Workshop_onWorkshopEntered;
     }
 
     void Update()
@@ -45,19 +54,15 @@ public class CarController : MonoBehaviour
         inputAcceleration = Input.GetAxis("Vertical") * carConfigurationSO.MotorForce;
         inputDirection = Input.GetAxis("Horizontal") * carConfigurationSO.DirectionForce;
         inputBreak = Input.GetAxisRaw("Break") * carConfigurationSO.BreakForce;
-        if (Input.GetKeyDown(KeyCode.V))
-        {
-            if (thirdPersonCamera.gameObject.activeSelf)
-            {
-                thirdPersonCamera.gameObject.SetActive(false);
-                firstPersonCamera.gameObject.SetActive(true);
-            }
-            if (firstPersonCamera.gameObject.activeSelf)
-            {
-                thirdPersonCamera.gameObject.SetActive(true);
-                firstPersonCamera.gameObject.SetActive(false);
-            }
-        }
+
+        yaw += Input.GetAxis("Mouse X") * carConfigurationSO.MouseSens;
+        pitch -= Input.GetAxis("Mouse Y") * carConfigurationSO.MouseSens;
+
+        pitch = Mathf.Clamp(pitch, -20f, 60f);
+
+        SwitchPerspective();
+        CameraRotate();
+
         if (inputAcceleration != 0)
         {
             gasSystem.ConsumeGas(carConfigurationSO.GasConsumedBySecond * Time.deltaTime);
@@ -91,6 +96,22 @@ public class CarController : MonoBehaviour
         SyncWheel(backLeft, visualBackLeft);
     }
 
+    private void OnDestroy()
+    {
+        GasStation.onGasStationEntered -= GasStation_onGasStationEntered;
+        Workshop.onWorkshopEntered -= Workshop_onWorkshopEntered;
+    }
+
+    private void GasStation_onGasStationEntered(float gasRecovered)
+    {
+        gasSystem.RecoverGas(gasRecovered);
+    }
+
+    private void Workshop_onWorkshopEntered(float healthRecovered)
+    {
+        healthSystem.Heal(healthRecovered);
+    }
+
     private void SyncWheel(WheelCollider wheel, Transform visual)
     {
         wheel.GetWorldPose(out var pos, out var rot);
@@ -104,6 +125,47 @@ public class CarController : MonoBehaviour
         {
             CrashedWithObstacle(other.relativeVelocity.magnitude);
         }
+    }
+
+    private void SwitchPerspective()
+    {
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            if (thirdPersonCamera.gameObject.activeSelf)
+            {
+                thirdPersonCamera.gameObject.SetActive(false);
+                firstPersonCamera.gameObject.SetActive(true);
+            }
+            else if (firstPersonCamera.gameObject.activeSelf)
+            {
+                thirdPersonCamera.gameObject.SetActive(true);
+                firstPersonCamera.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void CameraRotate()
+    {
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+
+        Vector3 targetPosition = car.transform.position;
+
+        Vector3 position = targetPosition - rotation * Vector3.forward * carConfigurationSO.ThirdPersonCameraDistance;
+
+        thirdPersonCamera.transform.position = position;
+        thirdPersonCamera.transform.LookAt(targetPosition);
+
+        // First person camera
+        yaw += Input.GetAxis("Mouse X") * carConfigurationSO.MouseSens;
+        pitch -= Input.GetAxis("Mouse Y") * carConfigurationSO.MouseSens;
+
+        pitch = Mathf.Clamp(pitch, -30f, 60f);
+
+        yaw = Mathf.Clamp(yaw, -90f, 90f);
+
+        firstPersonCamera.transform.localRotation = Quaternion.Euler(pitch, yaw, 0);
+        Vector3 angle = new Vector3(carConfigurationSO.MouseSens * (Input.GetAxis("Mouse Y") * -1), carConfigurationSO.MouseSens * Input.GetAxis("Mouse X"));
+        firstPersonCamera.transform.Rotate(angle);
     }
 
     private void CrashedWithObstacle(float impactSpeed)

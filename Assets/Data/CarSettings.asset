@@ -14,10 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CarConfigurationSO
   TotalGas: 0
   CurrentGas: 0
+  MouseSens: 4
+  ThirdPersonCameraDistance: 5
   MotorForce: 1500
-  DirectionForce: 1
+  DirectionForce: 30
   BreakForce: 200
   GasConsumedBySecond: 1
+  GasRecoveredBySecond: 5
+  HealthRecoveredBySecond: 5
   FirstSpeedThreshold: 10
   SecondSpeedThreshold: 30
   ThirdSpeedThreshold: 50

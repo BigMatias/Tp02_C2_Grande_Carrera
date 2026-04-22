@@ -32,7 +32,7 @@ public class UIDamageCanvas : MonoBehaviour
 
     private IEnumerator TextActive()
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1);
         canvasDamage.gameObject.SetActive(false);
     }
 }

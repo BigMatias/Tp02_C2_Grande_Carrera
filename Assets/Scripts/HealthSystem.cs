@@ -48,7 +48,7 @@ public class HealthSystem : MonoBehaviour
 
     }
 
-    public void Heal(int plus)
+    public void Heal(float plus)
     {
         if (plus < 0)
         {
