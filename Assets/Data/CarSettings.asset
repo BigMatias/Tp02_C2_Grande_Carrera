@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7304fec1db25f974ba8787163d12c184, type: 3}
   m_Name: CarSettings
   m_EditorClassIdentifier: Assembly-CSharp::CarConfigurationSO
-  TotalGas: 0
-  CurrentGas: 0
+  TotalGas: 100
+  MaxLife: 100
   MouseSens: 4
   ThirdPersonCameraDistance: 5
   MotorForce: 1500

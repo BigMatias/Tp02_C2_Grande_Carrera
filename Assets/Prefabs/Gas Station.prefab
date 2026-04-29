@@ -345,6 +345,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3891876717433431748}
+  - component: {fileID: 8332066517266217476}
   - component: {fileID: 5787256935950068720}
   m_Layer: 0
   m_Name: Gas Station
@@ -372,6 +373,19 @@ Transform:
   - {fileID: 8876083277406472827}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8332066517266217476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8621211342630185100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf76259898746dd4c9bbde918f41436f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GasStation
+  carConfigurationSO: {fileID: 11400000, guid: f5fd0323f4ca4824f907a8e1172e361a, type: 2}
 --- !u!65 &5787256935950068720
 BoxCollider:
   m_ObjectHideFlags: 0

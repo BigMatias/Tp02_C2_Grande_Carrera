@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
@@ -11,11 +12,24 @@ public class CarController : MonoBehaviour
     [SerializeField] private float inputDirection;
     [SerializeField] private float inputBreak;
     [SerializeField] private CarConfigurationSO carConfigurationSO;
+    [SerializeField] private TurretDataSO turretDataSO;
     [SerializeField] private Transform car;
+    [SerializeField] private Workshop workshop;
+    [SerializeField] private GasStation gasStation;
+
+    [Header("Turret: ")]
+    [SerializeField] private Transform turret;
+    [SerializeField] private Transform turretBase;
+    [SerializeField] private Transform shootPoint;
+    [SerializeField] private LineRenderer laserLine;
+    [SerializeField] private LayerMask hitLayers;
 
     [Header("Cameras: ")]
     [SerializeField] private Camera thirdPersonCamera;
     [SerializeField] private Camera firstPersonCamera;
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float minPitch = -10f;
+    [SerializeField] private float maxPitch = 45f;
 
     [Header("Wheels: ")]
     [SerializeField] private WheelCollider frontRight;
@@ -32,12 +46,17 @@ public class CarController : MonoBehaviour
     [Header("HealthSystem")]
     [SerializeField] private Transform healthPoint;
 
-    float yaw;
-    float pitch;
+    private float yawThird;
+    private float pitchThird;
+    private float yawFirst;
+    private float pitchFirst;
+    private Camera activeCam;
+    private Vector3 targetPoint;
 
     private HealthSystem healthSystem;
     private GasSystem gasSystem;
     private Rigidbody rb;
+
     public static event Action<float, Transform> onPlayerCrashed;
 
     private void Awake()
@@ -45,8 +64,8 @@ public class CarController : MonoBehaviour
         healthSystem = GetComponent<HealthSystem>();
         gasSystem = GetComponent<GasSystem>();
         rb = GetComponent<Rigidbody>();
-        GasStation.onGasStationEntered += GasStation_onGasStationEntered;
-        Workshop.onWorkshopEntered += Workshop_onWorkshopEntered;
+        gasStation.onGasStationEntered += GasStation_onGasStationEntered;
+        workshop.onWorkshopEntered += Workshop_onWorkshopEntered;
     }
 
     void Update()
@@ -54,14 +73,12 @@ public class CarController : MonoBehaviour
         inputAcceleration = Input.GetAxis("Vertical") * carConfigurationSO.MotorForce;
         inputDirection = Input.GetAxis("Horizontal") * carConfigurationSO.DirectionForce;
         inputBreak = Input.GetAxisRaw("Break") * carConfigurationSO.BreakForce;
-
-        yaw += Input.GetAxis("Mouse X") * carConfigurationSO.MouseSens;
-        pitch -= Input.GetAxis("Mouse Y") * carConfigurationSO.MouseSens;
-
-        pitch = Mathf.Clamp(pitch, -20f, 60f);
+        activeCam = firstPersonCamera.gameObject.activeSelf ? firstPersonCamera : thirdPersonCamera;
 
         SwitchPerspective();
         CameraRotate();
+        Shoot();
+        RotateTurret();
 
         if (inputAcceleration != 0)
         {
@@ -73,7 +90,7 @@ public class CarController : MonoBehaviour
     {
         if (inputAcceleration > 200)
 
-        //Aceleración
+        //Aceleraciï¿½n
         frontRight.motorTorque = inputAcceleration;
         frontLeft.motorTorque = inputAcceleration;
         backRight.motorTorque = inputAcceleration;
@@ -85,11 +102,11 @@ public class CarController : MonoBehaviour
         backRight.brakeTorque = inputBreak;
         backLeft.brakeTorque = inputBreak;
 
-        //Dirección
+        //Direcciï¿½n
         frontRight.steerAngle = inputDirection;
         frontLeft.steerAngle = inputDirection;
 
-        //Sincronización visual
+        //Sincronizaciï¿½n visual
         SyncWheel(frontRight, visualFrontRight);
         SyncWheel(frontLeft, visualFrontLeft);
         SyncWheel(backRight, visualBackRight);
@@ -98,8 +115,8 @@ public class CarController : MonoBehaviour
 
     private void OnDestroy()
     {
-        GasStation.onGasStationEntered -= GasStation_onGasStationEntered;
-        Workshop.onWorkshopEntered -= Workshop_onWorkshopEntered;
+        gasStation.onGasStationEntered -= GasStation_onGasStationEntered;
+        workshop.onWorkshopEntered -= Workshop_onWorkshopEntered;
     }
 
     private void GasStation_onGasStationEntered(float gasRecovered)
@@ -146,26 +163,107 @@ public class CarController : MonoBehaviour
 
     private void CameraRotate()
     {
-        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+        float mouseX = Input.GetAxis("Mouse X") * carConfigurationSO.MouseSens;
+        float mouseY = Input.GetAxis("Mouse Y") * carConfigurationSO.MouseSens;
 
-        Vector3 targetPosition = car.transform.position;
+        yawThird += mouseX;
+        pitchThird -= mouseY;
+        pitchThird = Mathf.Clamp(pitchThird, -20f, 60f);
 
+        Quaternion rotation = Quaternion.Euler(pitchThird, yawThird, 0);
+
+        Vector3 targetPosition = turret.transform.position;
         Vector3 position = targetPosition - rotation * Vector3.forward * carConfigurationSO.ThirdPersonCameraDistance;
 
         thirdPersonCamera.transform.position = position;
         thirdPersonCamera.transform.LookAt(targetPosition);
 
-        // First person camera
-        yaw += Input.GetAxis("Mouse X") * carConfigurationSO.MouseSens;
-        pitch -= Input.GetAxis("Mouse Y") * carConfigurationSO.MouseSens;
+        yawFirst += mouseX;
+        pitchFirst -= mouseY;
 
-        pitch = Mathf.Clamp(pitch, -30f, 60f);
+        pitchFirst = Mathf.Clamp(pitchFirst, -30f, 60f);
+        yawFirst = Mathf.Clamp(yawFirst, -90f, 90f);
 
-        yaw = Mathf.Clamp(yaw, -90f, 90f);
+        firstPersonCamera.transform.localRotation = Quaternion.Euler(pitchFirst, yawFirst, 0);
+    }
 
-        firstPersonCamera.transform.localRotation = Quaternion.Euler(pitch, yaw, 0);
-        Vector3 angle = new Vector3(carConfigurationSO.MouseSens * (Input.GetAxis("Mouse Y") * -1), carConfigurationSO.MouseSens * Input.GetAxis("Mouse X"));
-        firstPersonCamera.transform.Rotate(angle);
+    private void RotateTurret()
+    {
+        Ray ray = new Ray(shootPoint.position, activeCam.transform.forward);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit, 100f))
+            targetPoint = hit.point;
+        else
+            targetPoint = ray.origin + ray.direction * 100f;
+
+        Vector3 flatDirection = targetPoint - turretBase.position;
+        flatDirection.y = 0;
+
+        if (flatDirection != Vector3.zero)
+        {
+            Quaternion baseRot = Quaternion.LookRotation(flatDirection) * Quaternion.Euler(0, 90f, 0);
+
+            turretBase.rotation = Quaternion.Lerp(
+                turretBase.rotation,
+                baseRot,
+                Time.deltaTime * rotationSpeed
+            );
+        }
+
+        Vector3 localTarget = turretBase.InverseTransformPoint(targetPoint);
+
+        float pitch = Mathf.Atan2(localTarget.y, localTarget.x) * Mathf.Rad2Deg;
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+        Quaternion pitchRot = Quaternion.Euler(0f, 0f, -pitch + 180f);
+
+        turret.localRotation = Quaternion.Slerp(
+         turret.localRotation,
+        pitchRot,
+        Time.deltaTime * rotationSpeed
+        );
+    }
+
+    private void Shoot()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 direction = (targetPoint - shootPoint.position).normalized;
+
+            Ray ray = new Ray(shootPoint.position, direction);
+
+            RaycastHit hit;
+            Vector3 endPoint;
+
+            laserLine.SetPosition(0, shootPoint.position);
+
+            if (Physics.Raycast(ray, out hit, turretDataSO.M1ShootRange, hitLayers))
+            {
+                Debug.Log("Impacto en: " + hit.collider.name);
+                endPoint = hit.point;
+
+                HealthSystem targetHealth = hit.collider.GetComponent<HealthSystem>();
+                if (targetHealth != null)
+                {
+                    targetHealth.DoDamage(turretDataSO.M1Damage);
+                }
+            }
+            else
+            {
+                endPoint = shootPoint.position + direction * turretDataSO.M1ShootRange;
+            }
+
+            laserLine.SetPosition(1, endPoint);
+            StartCoroutine(ShootEffectSequence());
+        }
+    }
+
+    private IEnumerator ShootEffectSequence()
+    {
+        laserLine.enabled = true;
+        yield return new WaitForSeconds(turretDataSO.LaserDuration);
+        laserLine.enabled = false;
     }
 
     private void CrashedWithObstacle(float impactSpeed)

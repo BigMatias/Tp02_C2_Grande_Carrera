@@ -3,24 +3,24 @@ using UnityEngine;
 
 public class GasSystem : MonoBehaviour
 {
-    [SerializeField] private float maxGas = 100;
+    [SerializeField] private CarConfigurationSO carConfigurationSO;
 
     public event Action<float, float> onGasUpdated; // <currentLife, maxLife>
     public event Action onGasDepleted;
     public event Action onGasConsumed;
 
-    private float gas = 100;
+    private float gas;
 
     private void Start()
     {
-        gas = maxGas;
-        onGasUpdated?.Invoke(gas, maxGas);
+        gas = carConfigurationSO.TotalGas;
+        onGasUpdated?.Invoke(gas, carConfigurationSO.TotalGas);
     }
 
     public void ResetGas()
     {
-        gas = maxGas;
-        onGasUpdated?.Invoke(gas, maxGas);
+        gas = carConfigurationSO.TotalGas;
+        onGasUpdated?.Invoke(gas, carConfigurationSO.TotalGas);
     }
 
     public void ConsumeGas(float gas)
@@ -36,21 +36,18 @@ public class GasSystem : MonoBehaviour
         if (this.gas <= 0)
         {
             this.gas = 0;
-            onGasUpdated?.Invoke(this.gas, maxGas);
+            onGasUpdated?.Invoke(this.gas, carConfigurationSO.TotalGas);
             onGasDepleted?.Invoke();
         }
         else
         {
             onGasConsumed?.Invoke();
-            onGasUpdated?.Invoke(this.gas, maxGas);
+            onGasUpdated?.Invoke(this.gas, carConfigurationSO.TotalGas);
         }
-        Debug.Log(gas);
-
     }
 
     public void RecoverGas(float plus)
     {
-        Debug.Log(plus);
         if (plus < 0)
         {
             return;
@@ -58,9 +55,9 @@ public class GasSystem : MonoBehaviour
 
         gas += plus;
 
-        if (gas > maxGas)
-            gas = maxGas;
+        if (gas > carConfigurationSO.TotalGas)
+            gas = carConfigurationSO.TotalGas;
 
-        onGasUpdated?.Invoke(gas, maxGas);
+        onGasUpdated?.Invoke(gas, carConfigurationSO.TotalGas);
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public class Workshop : MonoBehaviour
 {
     [SerializeField] private CarConfigurationSO carConfigurationSO;
-    public static event Action<float> onWorkshopEntered;
+    public event Action<float> onWorkshopEntered;
 
     private void OnTriggerStay(Collider other)
     {
