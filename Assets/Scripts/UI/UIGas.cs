@@ -30,7 +30,6 @@ public class UIGas: MonoBehaviour
 
     private void Target_onGasUpdated(float current, float max)
     {
-        Debug.Log(current);
         float lerp = current / (float)max;
         barGas.fillAmount = lerp;
     }

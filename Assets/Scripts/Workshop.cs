@@ -1,16 +1,53 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Workshop : MonoBehaviour
 {
     [SerializeField] private CarConfigurationSO carConfigurationSO;
-    public event Action<float> onWorkshopEntered;
+    private List<HealthSystemV2> carsInsideWorkshop = new List<HealthSystemV2>();
 
-    private void OnTriggerStay(Collider other)
+    private IEnumerator repairingCoroutine;
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == (int)Layers.Player)
+        HealthSystemV2 healthSystem = other.GetComponent<HealthSystemV2>();
+
+        if (healthSystem != null)
         {
-            onWorkshopEntered?.Invoke(carConfigurationSO.HealthRecoveredBySecond * Time.deltaTime);
+            if (!carsInsideWorkshop.Contains(healthSystem))
+            {
+                carsInsideWorkshop.Add(healthSystem);
+            }
+
+            if (repairingCoroutine == null)
+            {
+                repairingCoroutine = RepairingCars();
+                StartCoroutine(repairingCoroutine);
+            }
         }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        HealthSystemV2 healthSystem = other.GetComponent<HealthSystemV2>();
+
+        if (healthSystem != null)
+        {
+            carsInsideWorkshop.Remove(healthSystem);
+        }
+    }
+
+    private IEnumerator RepairingCars()
+    {
+        while (carsInsideWorkshop.Count > 0)
+        {
+            foreach (HealthSystemV2 car in carsInsideWorkshop)
+            {
+                car.Heal(carConfigurationSO.HealthRecoveredBySecond * Time.deltaTime);
+            }
+            yield return null;
+        }
+        repairingCoroutine = null;
     }
 }

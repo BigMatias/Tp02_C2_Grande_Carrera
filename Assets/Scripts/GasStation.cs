@@ -1,17 +1,48 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GasStation : MonoBehaviour
 {
     [SerializeField] private CarConfigurationSO carConfigurationSO;
-    public event Action<float> onGasStationEntered;
+    private List<GasSystem> carsInsideStation = new List<GasSystem>();
 
-    private void OnTriggerStay(Collider other)
+    private IEnumerator rechargingGasCoroutine;
+
+    private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.layer == (int)Layers.Player)
+        GasSystem carController = other.GetComponent<GasSystem>();
+        if (carController != null)
         {
-            onGasStationEntered?.Invoke(carConfigurationSO.GasRecoveredBySecond * Time.deltaTime);
+            carsInsideStation.Add(carController);
+        }
+
+        if (rechargingGasCoroutine == null)
+        {
+            rechargingGasCoroutine = RechargingGas();
+            StartCoroutine(rechargingGasCoroutine);
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        GasSystem carController = other.GetComponent<GasSystem>();
+        if (carController != null)
+        {
+            carsInsideStation.Remove(carController);
+        }
+    }
+
+    private IEnumerator RechargingGas()
+    {
+        while(carsInsideStation.Count > 0)
+        {
+            foreach (GasSystem car in carsInsideStation)
+            {
+                car.RecoverGas(carConfigurationSO.GasRecoveredBySecond * Time.deltaTime);
+            }
+            yield return null;
+        }
+        rechargingGasCoroutine = null;
+    }
 }

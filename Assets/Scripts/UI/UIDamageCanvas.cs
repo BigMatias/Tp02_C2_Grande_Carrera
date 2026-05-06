@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class UIDamageCanvas : MonoBehaviour
 {
+    [SerializeField] private CarController carController;
     [SerializeField] private Canvas canvasDamage;
     [SerializeField] private TMP_Text textDamage;
 
@@ -11,7 +12,7 @@ public class UIDamageCanvas : MonoBehaviour
 
     private void Awake()
     {
-        CarController.onPlayerCrashed += CarController_onPlayerCrashed;
+        carController.onPlayerCrashed += CarController_onPlayerCrashed;
     }
 
     private void OnDestroy()

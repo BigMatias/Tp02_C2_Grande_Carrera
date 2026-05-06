@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class UiLife : MonoBehaviour
 {
-    [SerializeField] private HealthSystem target;
+    [SerializeField] private HealthSystemV2 target;
     [SerializeField] private Image barLife;
 
     private void Awake()

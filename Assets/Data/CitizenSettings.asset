@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ac6c5f0f56b56748810f5e03e88d707, type: 3}
+  m_Name: CitizenSettings
+  m_EditorClassIdentifier: Assembly-CSharp::CitizenDataSO
+  Speed: 0
+  MaxSpeed: 0
+  EnemyProjectileDamage: 20
+  EnemyProjectileSpeed: 1
+  EnemyProjectileDuration: 2
+  EnemyThrowCD: 3
+  ProjectileInstantiateQuantity: 0
+  EnemySpawnQuantity: 0
+  CivilianSpawnQuantity: 0

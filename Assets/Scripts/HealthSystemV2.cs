@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class HealthSystemV2 : MonoBehaviour, IDamageable
 {
-    [SerializeField] private CarConfigurationSO carConfigurationSO;
+    [SerializeField] private int maxLife = 100;
 
     public event Action<float, float> onLifeUpdated; // <currentLife, maxLife>
     public event Action onDie;
@@ -13,19 +13,18 @@ public class HealthSystemV2 : MonoBehaviour, IDamageable
 
     private void Start()
     {
-        life = carConfigurationSO.MaxLife;
-        onLifeUpdated?.Invoke(life, carConfigurationSO.MaxLife);
+        life = maxLife;
+        onLifeUpdated?.Invoke(life, maxLife);
     }
 
     public void ResetLife()
     {
-        life = carConfigurationSO.MaxLife;
-        onLifeUpdated?.Invoke(life, carConfigurationSO.MaxLife);
+        life = maxLife;
+        onLifeUpdated?.Invoke(life, maxLife);
     }
 
     public void TakeDamage(float damage)
     {
-
         if (damage < 0)
         {
             return;
@@ -36,16 +35,15 @@ public class HealthSystemV2 : MonoBehaviour, IDamageable
         if (life <= 0)
         {
             life = 0;
-            onLifeUpdated?.Invoke(life, carConfigurationSO.MaxLife);
+            onLifeUpdated?.Invoke(life, maxLife);
             onDie?.Invoke();
         }
         else
-        {
-            onDamage?.Invoke(life, carConfigurationSO.MaxLife);
-            onLifeUpdated?.Invoke(life, carConfigurationSO.MaxLife);
+        {   
+            onDamage?.Invoke(life, maxLife);
+            onLifeUpdated?.Invoke(life, maxLife);
         }
         Debug.Log(damage);
-
     }
 
     public void Heal(float plus)
@@ -57,9 +55,9 @@ public class HealthSystemV2 : MonoBehaviour, IDamageable
 
         life += plus;
 
-        if (life > carConfigurationSO.MaxLife)
-            life = carConfigurationSO.MaxLife;
+        if (life > maxLife)
+            life = maxLife;
 
-        onLifeUpdated?.Invoke(life, carConfigurationSO.MaxLife);
+        onLifeUpdated?.Invoke(life, maxLife);
     }
 }

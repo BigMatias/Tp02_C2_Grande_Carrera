@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
-    [SerializeField] private float damage = 50;
+   /* [SerializeField] private float damage = 50;
     private void OnCollisionEnter(Collision collision)
     {
         DoDamage(collision.gameObject);
@@ -24,4 +24,14 @@ public class Bullet : MonoBehaviour
         Destroy(gameObject);
     }
 
+    private void DeActivate()
+    {
+
+    }
+
+    private void Activate()
+    {
+
+    }
+   */
 }
