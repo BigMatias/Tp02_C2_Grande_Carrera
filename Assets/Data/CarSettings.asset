@@ -16,9 +16,9 @@ MonoBehaviour:
   MaxLife: 100
   MouseSens: 4
   ThirdPersonCameraDistance: 5
-  MotorForce: 10000
-  DirectionForce: 30
-  BreakForce: 20000
+  MotorForce: 3000
+  DirectionForce: 10
+  BreakForce: 10000
   GasConsumedBySecond: 2
   GasRecoveredBySecond: 5
   HealthRecoveredBySecond: 5

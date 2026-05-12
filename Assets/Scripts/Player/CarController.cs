@@ -108,19 +108,17 @@ public class CarController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // Aceleración
-        frontRight.brakeTorque = inputAcceleration;
-        frontLeft.brakeTorque = inputAcceleration;
+        // Aceleración 
         backRight.motorTorque = inputAcceleration;
         backLeft.motorTorque = inputAcceleration;
 
-        // Frenado
+        // Freno 
         frontRight.brakeTorque = inputBreak;
         frontLeft.brakeTorque = inputBreak;
         backRight.brakeTorque = inputBreak;
         backLeft.brakeTorque = inputBreak;
 
-        // Dirección (Sin bloqueos)
+        // Dirección 
         frontRight.steerAngle = inputDirection;
         frontLeft.steerAngle = inputDirection;
 

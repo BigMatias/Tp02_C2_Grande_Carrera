@@ -6,7 +6,7 @@ using static CompetitionScoreSystem;
 
 public class CompetitionManager : MonoBehaviour
 {
-    [Header("Configuración de Niveles (orden ascendente de dificultad)")]
+    [Header("ConfiguraciÃ³n de Niveles")]
     [SerializeField] private CompetitionLevelConfigSO[] levelConfigs = new CompetitionLevelConfigSO[3];
 
     [Header("Escenas")]
@@ -14,7 +14,7 @@ public class CompetitionManager : MonoBehaviour
 
     [Header("Timing")]
     [SerializeField] private float countdownBeforeStart = 3f;
-    [Tooltip("Delay en segundos antes de cargar la pantalla de resultado")]
+    [Tooltip("Delay")]
     [SerializeField] private float resultScreenDelay = 1.5f;
     public static CompetitionManager Instance { get; private set; }
 
@@ -69,7 +69,6 @@ public class CompetitionManager : MonoBehaviour
     {
         if (levelIndex >= levelConfigs.Length)
         {
-            Debug.LogError("[CompetitionManager] Índice de nivel fuera de rango.");
             return;
         }
 
@@ -107,7 +106,6 @@ public class CompetitionManager : MonoBehaviour
         _lapTimer = 0f;
         _lapRunning = true;
         SetState(CompetitionState.Racing);
-        Debug.Log($"[CompetitionManager] Nivel {_currentLevelIndex + 1} iniciado. Objetivo: {CurrentConfig.requiredScore} pts");
     }
 
     public void OnPlayerFinishedLap()
@@ -124,7 +122,6 @@ public class CompetitionManager : MonoBehaviour
         StartCoroutine(EvaluateLapResult(timeUsed));
     }
 
-    // NUEVO MÉTODO PARA FALLO POR MUERTE/GASOLINA
     public void EndLevelWithFailure(string reason = "Failure")
     {
         if (_state != CompetitionState.Racing) return;
@@ -132,11 +129,9 @@ public class CompetitionManager : MonoBehaviour
         Debug.Log($"[CompetitionManager] Carrera fallida: {reason}");
         _lapRunning = false;
 
-        // Evaluamos de inmediato pasando false, sin chequear el Score System
         StartCoroutine(ShowResultWithDelay(BuildResult(false, _lapTimer)));
     }
 
-    // Actualizamos OnPlayerDied para que use el método central de fallo
     public void OnPlayerDied()
     {
         EndLevelWithFailure("Player Died");
@@ -144,7 +139,7 @@ public class CompetitionManager : MonoBehaviour
 
     private void HandleTimeOut()
     {
-        Debug.Log("[CompetitionManager] ¡Tiempo agotado!");
+        Debug.Log("[CompetitionManager] ï¿½Tiempo agotado!");
         StartCoroutine(EvaluateLapResult(_lapTimer));
     }
 
@@ -194,7 +189,6 @@ public class CompetitionManager : MonoBehaviour
         else
         {
             SetState(CompetitionState.CompetitionComplete);
-            Debug.Log("[CompetitionManager] ¡Modo Competición completado!");
         }
     }
 
@@ -214,6 +208,5 @@ public class CompetitionManager : MonoBehaviour
     {
         _state = newState;
         OnStateChanged?.Invoke(_state);
-        Debug.Log($"[CompetitionManager] Estado: {_state}");
     }
 }

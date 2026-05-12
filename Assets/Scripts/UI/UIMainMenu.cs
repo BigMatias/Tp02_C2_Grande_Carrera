@@ -9,27 +9,37 @@ public class UIMainMenu : MonoBehaviour
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject creditsMenu;
     [SerializeField] private Button creditsBackBtn;
-
+    [SerializeField] private GameModeDataSO gameModeData;
+    
     private void Awake()
     {
-        mainMenuButtons[0].onClick.AddListener(OnPlayBtnClicked);
-        mainMenuButtons[1].onClick.AddListener(OnOptionsBtnClicked);
-        mainMenuButtons[2].onClick.AddListener(OnCreditsBtnClicked);
-        mainMenuButtons[3].onClick.AddListener(OnExitBtnClicked);
+        mainMenuButtons[0].onClick.AddListener(OnCompetitionBtnClicked);
+        mainMenuButtons[1].onClick.AddListener(OnEndlessBtnClicked);
+        mainMenuButtons[2].onClick.AddListener(OnOptionsBtnClicked);
+        mainMenuButtons[3].onClick.AddListener(OnCreditsBtnClicked);
+        mainMenuButtons[4].onClick.AddListener(OnExitBtnClicked);
         creditsBackBtn.onClick.AddListener(OnCreditsBackBtnClicked);
     }
+    
     private void OnDestroy()
     {
-        mainMenuButtons[0].onClick.RemoveListener(OnPlayBtnClicked);
-        mainMenuButtons[1].onClick.RemoveListener(OnOptionsBtnClicked);
-        mainMenuButtons[2].onClick.RemoveListener(OnCreditsBtnClicked);
-        mainMenuButtons[3].onClick.RemoveListener(OnExitBtnClicked);
+        mainMenuButtons[0].onClick.RemoveListener(OnCompetitionBtnClicked);
+        mainMenuButtons[1].onClick.RemoveListener(OnEndlessBtnClicked);
+        mainMenuButtons[2].onClick.RemoveListener(OnOptionsBtnClicked);
+        mainMenuButtons[3].onClick.RemoveListener(OnCreditsBtnClicked);
+        mainMenuButtons[4].onClick.RemoveListener(OnExitBtnClicked);
         creditsBackBtn.onClick.RemoveListener(OnCreditsBackBtnClicked);
     }
-
-    private void OnPlayBtnClicked()
+    
+    private void OnCompetitionBtnClicked()
     {
-        gameObject.SetActive(false);
+        gameModeData.selectedMode = GameMode.Competition;
+        SceneManager.LoadScene("GameScene");
+    }
+
+    private void OnEndlessBtnClicked()
+    {
+        gameModeData.selectedMode = GameMode.Competition;
         SceneManager.LoadScene("GameScene");
     }
 
@@ -52,7 +62,6 @@ public class UIMainMenu : MonoBehaviour
 
     private void OnExitBtnClicked()
     {
-        //Sale del estado "Play" del editor si estamos en el editor, de lo contrario sale de la aplicación si esta es una build.  
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else

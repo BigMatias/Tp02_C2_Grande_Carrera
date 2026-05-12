@@ -40,8 +40,6 @@ public class GenericPool<T> where T : MonoBehaviour, IPooleable
         }
         else
         {
-            Debug.LogWarning($"[GenericPool<{typeof(T).Name}>] Capacidad máxima alcanzada ({_maxSize}). " +
-                              "No se puede obtener más instancias.");
             return null;
         }
 
@@ -55,14 +53,11 @@ public class GenericPool<T> where T : MonoBehaviour, IPooleable
 
         if (!_all.Contains(instance))
         {
-            Debug.LogWarning($"[GenericPool<{typeof(T).Name}>] Se intentó devolver un objeto " +
-                              "que no pertenece a este pool. Ignorado.");
             return;
         }
 
         instance.Deactivate();
 
-        // Evitar duplicados en la cola
         if (!instance.IsActive)
             _inactive.Enqueue(instance);
     }
@@ -83,7 +78,6 @@ public class GenericPool<T> where T : MonoBehaviour, IPooleable
             T instance = CreateInstance();
             _inactive.Enqueue(instance);
         }
-        Debug.Log($"[GenericPool<{typeof(T).Name}>] Pool creado: {count} objetos, máximo {_maxSize}.");
     }
 
     private T CreateInstance()

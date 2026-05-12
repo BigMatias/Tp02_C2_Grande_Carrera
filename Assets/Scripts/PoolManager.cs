@@ -7,25 +7,24 @@ public class PoolManager : MonoBehaviour
     [Serializable]
     public class PoolConfig
     {
-        [Tooltip("Nombre descriptivo para el contenedor en la jerarquía (ej. 'Bullets', 'Enemies').")]
+        [Tooltip("Nombre Pool: ")]
         public string poolName = "Pool";
 
-        [Tooltip("Prefab del objeto. DEBE tener un componente que implemente IPooleable.")]
+        [Tooltip("Prefab: ")]
         public GameObject prefab;
 
-        [Tooltip("Cantidad de objetos preinstaciados al inicio.")]
+        [Tooltip("Cantidad Inicial: ")]
         [Min(1)] public int initialSize = 10;
 
-        [Tooltip("Máximo de objetos simultáneos. Get() devuelve null si se supera.")]
+        [Tooltip("Max: ")]
         [Min(1)] public int maxSize = 20;
     }
 
-    public static PoolManager Instance { get; private set; }
-
-    [Header("Configuración de Pools")]
+    [Header("ConfiguraciÃ³n: ")]
     [SerializeField] private PoolConfig[] poolConfigs;
 
     private Dictionary<Type, IPool> _pools = new Dictionary<Type, IPool>();
+    public static PoolManager Instance { get; private set; }
 
     private void Awake()
     {
@@ -45,7 +44,6 @@ public class PoolManager : MonoBehaviour
     {
         if (poolConfigs == null || poolConfigs.Length == 0)
         {
-            Debug.LogWarning("[PoolManager] No hay configuraciones de pool asignadas.");
             return;
         }
 
@@ -53,15 +51,12 @@ public class PoolManager : MonoBehaviour
         {
             if (config.prefab == null)
             {
-                Debug.LogWarning("[PoolManager] Un PoolConfig tiene prefab null. Ignorado.");
                 continue;
             }
 
             IPooleable pooleable = config.prefab.GetComponent<IPooleable>();
             if (pooleable == null)
             {
-                Debug.LogError($"[PoolManager] El prefab '{config.prefab.name}' no tiene un " +
-                               "componente que implemente IPooleable. Pool no creado.");
                 continue;
             }
 
@@ -69,8 +64,6 @@ public class PoolManager : MonoBehaviour
 
             if (_pools.ContainsKey(componentType))
             {
-                Debug.LogWarning($"[PoolManager] Ya existe un pool para el tipo '{componentType.Name}'. " +
-                                  "Ignorando duplicado.");
                 continue;
             }
 
@@ -83,7 +76,6 @@ public class PoolManager : MonoBehaviour
                 _pools.Add(componentType, pool);
         }
 
-        Debug.Log($"[PoolManager] {_pools.Count} pools inicializados.");
     }
 
     private Transform CreateContainer(string poolName)
@@ -99,8 +91,6 @@ public class PoolManager : MonoBehaviour
 
         if (!_pools.TryGetValue(type, out IPool pool))
         {
-            Debug.LogError($"[PoolManager] No existe pool para el tipo '{type.Name}'. " +
-                            "¿Está registrado en poolConfigs?");
             return null;
         }
 
@@ -112,7 +102,6 @@ public class PoolManager : MonoBehaviour
 
         if (!_pools.TryGetValue(type, out IPool pool))
         {
-            Debug.LogError($"[PoolManager] No existe pool para el tipo '{type.Name}'.");
             return;
         }
 
