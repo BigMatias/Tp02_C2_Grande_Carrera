@@ -1,47 +1,39 @@
-using UnityEngine;
-using System.Collections.Generic;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class CheckpointSystem : MonoBehaviour
 {
     public static CheckpointSystem Instance { get; private set; }
 
     public event Action<int> OnCheckpointReached;
-
     public event Action OnInvalidFinishAttempt;
-
     public event Action OnAllCheckpointsPassed;
-
     public event Action<int> OnPlayerRespawned;
 
-
-    [Header("Checkpoints de la pista")]
-    [Tooltip("Arrastrar todos los Checkpoint en ORDEN. Si se deja vacío, se buscan por tag.")]
+    [Header("Checkpoints")]
+    [Tooltip("Checkpoints en orden.")]
     [SerializeField] private Checkpoint[] checkpoints;
-
-    [Tooltip("Tag usado para buscar checkpoints automáticamente si el array está vacío.")]
     [SerializeField] private string checkpointTag = "Checkpoint";
-
-    [Header("Jugador")]
-    [SerializeField] private Transform playerTransform;
-    [Tooltip("Rigidbody del vehículo, para detener la inercia al respawn.")]
-    [SerializeField] private Rigidbody playerRigidbody;
 
     [Header("Respawn")]
     [SerializeField] private KeyCode respawnKey = KeyCode.R;
-    [Tooltip("Segundos de invulnerabilidad/freeze tras el respawn (para evitar triggers dobles).")]
     [SerializeField] private float respawnFreezeDuration = 0.5f;
 
     [Header("HUD Feedback")]
-    [Tooltip("Referencia al HUD para mostrar mensajes. Puede ser nulo.")]
     [SerializeField] private CompetitionHUDMessages hudMessages;
 
+    private Transform playerTransform;
+    private Rigidbody playerRigidbody;
+
     private HashSet<int> _passedIndices = new HashSet<int>();
-    private int _lastCheckpointIndex = -1;      
+    private int _lastCheckpointIndex = -1;
     private int _nextExpectedIndex = 0;
     private bool _allPassed = false;
     private bool _respawnFrozen = false;
     private float _respawnFreezeTimer = 0f;
+
     public bool CanFinish => _allPassed;
     public int TotalCheckpoints => checkpoints != null ? checkpoints.Length : 0;
     public int PassedCount => _passedIndices.Count;
@@ -51,18 +43,29 @@ public class CheckpointSystem : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        CarSpawner.OnCarSpawned += HandleCarSpawned;
     }
 
     private void Start()
     {
         InitializeCheckpoints();
-        FindPlayerIfNeeded();
+    }
+
+    private void OnDestroy()
+    {
+        CarSpawner.OnCarSpawned -= HandleCarSpawned;
     }
 
     private void Update()
     {
         HandleRespawnFreeze();
         HandleRespawnInput();
+    }
+
+    private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
+    {
+        playerTransform = gas.transform;
+        playerRigidbody = gas.GetComponent<Rigidbody>();
     }
 
     private void InitializeCheckpoints()
@@ -80,30 +83,12 @@ public class CheckpointSystem : MonoBehaviour
         for (int i = 0; i < checkpoints.Length; i++)
         {
             if (checkpoints[i].checkpointIndex != i)
-                Debug.LogWarning($"[CheckpointSystem] El checkpoint en posición {i} tiene índice " +
-                                 $"{checkpoints[i].checkpointIndex}. Los índices deben ser 0, 1, 2...");
+                Debug.LogWarning($"[CheckpointSystem] El checkpoint en posiciÃ³n {i} tiene Ã­ndice " +
+                                 $"{checkpoints[i].checkpointIndex}. Los Ã­ndices deben ser 0, 1, 2...");
         }
 
         UpdateCheckpointVisuals();
-
         Debug.Log($"[CheckpointSystem] {checkpoints.Length} checkpoints registrados.");
-    }
-
-    private void FindPlayerIfNeeded()
-    {
-        if (playerTransform != null) return;
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player != null)
-        {
-            playerTransform = player.transform;
-            if (playerRigidbody == null)
-                playerRigidbody = player.GetComponent<Rigidbody>()
-                               ?? player.GetComponentInChildren<Rigidbody>();
-        }
-        else
-        {
-            Debug.LogWarning("[CheckpointSystem] No se encontró un GameObject con tag 'Player'.");
-        }
     }
 
     public void ResetSystem()
@@ -120,13 +105,13 @@ public class CheckpointSystem : MonoBehaviour
     public void RegisterCheckpointReached(int index)
     {
         if (_respawnFrozen) return;
-        if (_passedIndices.Contains(index)) return; 
+        if (_passedIndices.Contains(index)) return;
 
         if (index != _nextExpectedIndex)
         {
             Debug.Log($"[CheckpointSystem] Checkpoint {index} ignorado. Se esperaba el {_nextExpectedIndex}.");
             if (hudMessages != null)
-                hudMessages.ShowMessage($"¡You went through checkpoint {index}! You must go through {_nextExpectedIndex} first.", 2f);
+                hudMessages.ShowMessage($"Â¡You went through checkpoint {index}! You must go through {_nextExpectedIndex} first.", 2f);
             return;
         }
 
@@ -137,20 +122,20 @@ public class CheckpointSystem : MonoBehaviour
         OnCheckpointReached?.Invoke(index);
         UpdateCheckpointVisuals();
 
-        Debug.Log($"[CheckpointSystem]  Checkpoint {index} reached ({_passedIndices.Count}/{checkpoints.Length})");
+        Debug.Log($"[CheckpointSystem] Checkpoint {index} reached ({_passedIndices.Count}/{checkpoints.Length})");
 
         if (_passedIndices.Count >= checkpoints.Length)
         {
             _allPassed = true;
             OnAllCheckpointsPassed?.Invoke();
-            Debug.Log("[CheckpointSystem]  Todos los checkpoints completados. Meta habilitada.");
+            Debug.Log("[CheckpointSystem] Todos los checkpoints completados. Meta habilitada.");
             if (hudMessages != null)
-                hudMessages.ShowMessage("¡All checkpoints reached! Go to the finish line.", 3f);
+                hudMessages.ShowMessage("Â¡All checkpoints reached! Go to the finish line.", 3f);
         }
         else
         {
             if (hudMessages != null)
-                hudMessages.ShowMessage($"Checkpoint {index + 1}/{checkpoints.Length} ", 1.5f);
+                hudMessages.ShowMessage($"Checkpoint {index + 1}/{checkpoints.Length}", 1.5f);
         }
     }
 
@@ -158,13 +143,12 @@ public class CheckpointSystem : MonoBehaviour
     {
         if (_allPassed) return true;
 
-        // Informar cuántos faltan
         int remaining = checkpoints.Length - _passedIndices.Count;
         Debug.Log($"[CheckpointSystem] Meta bloqueada. Faltan {remaining} checkpoint(s).");
         OnInvalidFinishAttempt?.Invoke();
 
         if (hudMessages != null)
-            hudMessages.ShowMessage($"¡Finish line blocked! {remaining} remaining checkpoint(s).", 2.5f, true);
+            hudMessages.ShowMessage($"Â¡Finish line blocked! {remaining} remaining checkpoint(s).", 2.5f, true);
 
         return false;
     }
@@ -200,7 +184,7 @@ public class CheckpointSystem : MonoBehaviour
         {
             respawnPos = GetStartPosition();
             respawnRot = GetStartRotation();
-            Debug.Log("[CheckpointSystem] Respawn en posición de inicio (sin checkpoints pasados)");
+            Debug.Log("[CheckpointSystem] Respawn en posiciÃ³n de inicio (sin checkpoints pasados)");
         }
 
         playerTransform.position = respawnPos;
@@ -213,7 +197,6 @@ public class CheckpointSystem : MonoBehaviour
         }
 
         StartRespawnFreeze();
-
         OnPlayerRespawned?.Invoke(_lastCheckpointIndex);
 
         if (hudMessages != null)

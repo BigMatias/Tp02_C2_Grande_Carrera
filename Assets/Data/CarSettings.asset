@@ -22,6 +22,7 @@ MonoBehaviour:
   GasConsumedBySecond: 2
   GasRecoveredBySecond: 5
   HealthRecoveredBySecond: 5
+  EnemyCollideDamage: 100
   FirstSpeedThreshold: 10
   SecondSpeedThreshold: 30
   ThirdSpeedThreshold: 50

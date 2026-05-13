@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81ea482e1b8d1ff4e98572c8f5b22294, type: 3}
+  m_Name: Level3Config
+  m_EditorClassIdentifier: Assembly-CSharp::CompetitionLevelConfigSO
+  levelName: Level 3
+  levelIndex: 3
+  sceneName: Track3
+  requiredScore: 400
+  lapTimeLimit: 150
+  maxTimeBonusPoints: 1000
+  timeBonusMultiplier: 5
+  enemyBaseSpeed: 10
+  maxActiveEnemies: 5
+  maxActiveCivilians: 8
+  trafficDensityMultiplier: 1

@@ -16,6 +16,7 @@ public class CarConfigurationSO : ScriptableObject
     public float GasConsumedBySecond;
     public float GasRecoveredBySecond;
     public float HealthRecoveredBySecond;
+    public int EnemyCollideDamage;
     [Header("Damage Depending on Speed: ")]
     public float FirstSpeedThreshold;
     public float SecondSpeedThreshold;

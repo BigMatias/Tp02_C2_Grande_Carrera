@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae56312b3b69c2c049219788256b1cbb, type: 3}
+  m_Name: Car2Data
+  m_EditorClassIdentifier: Assembly-CSharp::CarDataSO
+  carName: Mommy Car
+  prefab: {fileID: 765623234254861744, guid: 85523e6e6775f5f90b325202508ee8f4, type: 3}
+  previewImage: {fileID: 21300000, guid: fe7f78962295a4c20aa3c4437f086ccc, type: 3}

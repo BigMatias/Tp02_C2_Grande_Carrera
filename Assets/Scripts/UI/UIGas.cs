@@ -1,26 +1,34 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIGas: MonoBehaviour
+public class UIGas : MonoBehaviour
 {
-    [SerializeField] private GasSystem target;
     [SerializeField] private Image barGas;
+
+    private GasSystem _target;
 
     private void Awake()
     {
-        target.onGasUpdated += Target_onGasUpdated;
-        target.onGasDepleted += Target_onGasDepleted;
-    }
-
-    private void Start()
-    {
-        barGas.fillAmount = 100;
+        CarSpawner.OnCarSpawned += HandleCarSpawned;
     }
 
     private void OnDestroy()
     {
-        target.onGasUpdated -= Target_onGasUpdated;
-        target.onGasDepleted -= Target_onGasDepleted;
+        CarSpawner.OnCarSpawned -= HandleCarSpawned;
+
+        if (_target != null)
+        {
+            _target.onGasUpdated -= Target_onGasUpdated;
+            _target.onGasDepleted -= Target_onGasDepleted;
+        }
+    }
+
+    private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
+    {
+        _target = gas;
+        _target.onGasUpdated += Target_onGasUpdated;
+        _target.onGasDepleted += Target_onGasDepleted;
+        barGas.fillAmount = 1f;
     }
 
     private void Target_onGasDepleted()
@@ -30,8 +38,6 @@ public class UIGas: MonoBehaviour
 
     private void Target_onGasUpdated(float current, float max)
     {
-        float lerp = current / (float)max;
-        barGas.fillAmount = lerp;
+        barGas.fillAmount = current / max;
     }
-
 }

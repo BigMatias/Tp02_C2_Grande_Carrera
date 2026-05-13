@@ -1,8 +1,12 @@
+using System;
 using UnityEngine;
 
-public class Mine : MonoBehaviour
+public class Mine : MonoBehaviour, IDamageable
 {
     [SerializeField] private float mineDamage = 10f;
+    public event Action onDie;
+    public event Action<float, float> onDamage;
+    
     private void OnTriggerEnter(Collider other)
     {
         DoDamage(other.gameObject);
@@ -15,6 +19,11 @@ public class Mine : MonoBehaviour
         {
             hs.TakeDamage(mineDamage);
         }
+        Destroy(gameObject);
+    }
+    
+    public void TakeDamage(float amount)
+    {
         Destroy(gameObject);
     }
 }

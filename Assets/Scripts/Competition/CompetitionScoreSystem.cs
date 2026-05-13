@@ -47,6 +47,7 @@ public class CompetitionScoreSystem : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     public void Initialize(CompetitionLevelConfigSO config)
@@ -78,7 +79,7 @@ public class CompetitionScoreSystem : MonoBehaviour
         _civiliansKilled++;
         OnCivilianKilled?.Invoke(penalty);
 
-        Debug.Log($"[Score] ¡Civil eliminado! {penalty} | Total: {_currentScore}");
+        Debug.Log($"[Score] ï¿½Civil eliminado! {penalty} | Total: {_currentScore}");
     }
 
     public void RegisterLapCompletion(float timeRemaining)

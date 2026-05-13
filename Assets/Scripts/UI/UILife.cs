@@ -1,32 +1,39 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UiLife : MonoBehaviour
+public class UILife : MonoBehaviour
 {
-    [SerializeField] private HealthSystemV2 target;
     [SerializeField] private Image barLife;
+
+    private HealthSystemV2 _target;
 
     private void Awake()
     {
-        target.onLifeUpdated += HealthSystem_onLifeUpdated;
-        target.onDie += HealthSystem_onDie;
-    }
-
-    private void Start()
-    {
-        barLife.fillAmount = 100;
+        CarSpawner.OnCarSpawned += HandleCarSpawned;
     }
 
     private void OnDestroy()
     {
-        target.onLifeUpdated -= HealthSystem_onLifeUpdated;
-        target.onDie -= HealthSystem_onDie;
+        CarSpawner.OnCarSpawned -= HandleCarSpawned;
+
+        if (_target != null)
+        {
+            _target.onLifeUpdated -= HealthSystem_onLifeUpdated;
+            _target.onDie -= HealthSystem_onDie;
+        }
     }
 
-    public void HealthSystem_onLifeUpdated(float current, float max)
+    private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
     {
-        float lerp = current / (float)max;
-        barLife.fillAmount = lerp;
+        _target = health;
+        _target.onLifeUpdated += HealthSystem_onLifeUpdated;
+        _target.onDie += HealthSystem_onDie;
+        barLife.fillAmount = 1f;
+    }
+
+    private void HealthSystem_onLifeUpdated(float current, float max)
+    {
+        barLife.fillAmount = current / max;
     }
 
     private void HealthSystem_onDie()

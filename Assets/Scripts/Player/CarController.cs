@@ -152,6 +152,15 @@ public class CarController : MonoBehaviour
         {
             CrashedWithObstacle(other.relativeVelocity.magnitude);
         }
+        else
+        {
+            IDamageable hs = other.gameObject.GetComponent<IDamageable>();
+            if (hs != null)
+            {
+                hs.TakeDamage(carConfigurationSO.EnemyCollideDamage);
+            }
+        }
+        
     }
 
     private void SwitchPerspective()
@@ -239,11 +248,7 @@ public class CarController : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-
-            Vector3 direction = (targetPoint - shootPoint.position).normalized;
-
-            Ray ray = new Ray(shootPoint.position, direction);
-
+            Ray ray = new Ray(activeCam.transform.position, activeCam.transform.forward);
             RaycastHit hit;
             Vector3 endPoint;
 
@@ -256,16 +261,15 @@ public class CarController : MonoBehaviour
 
                 IDamageable target = hit.collider.GetComponentInParent<IDamageable>();
                 if (target != null)
-                {
                     target.TakeDamage(turretDataSO.M1Damage);
-                }
             }
             else
             {
-                endPoint = shootPoint.position + direction * turretDataSO.M1ShootRange;
+                endPoint = ray.origin + ray.direction * turretDataSO.M1ShootRange;
             }
 
             laserLine.SetPosition(1, endPoint);
+            onPlayerShootM1?.Invoke();
             StartCoroutine(ShootEffectSequence());
         }
     }

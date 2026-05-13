@@ -46,17 +46,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e26051ac2ed0524bbac77c29efcf1b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  carController: {fileID: 0}
-  fsmManager: {fileID: 0}
-  music: []
-  enemyKillledSfx: {fileID: 0}
-  civilianKillledSfx: {fileID: 0}
-  playerHurtSfx: {fileID: 0}
+  enemyDiedEvent: {fileID: 11400000, guid: 511488e062e0fb549a16b75bf0ec6b10, type: 2}
+  civilianDiedEvent: {fileID: 11400000, guid: 3ac7013b5c3f4e4449a6f82d398f5ed4, type: 2}
+  music:
+  - {fileID: 8300000, guid: 05fdb9e1a095c4194992de32f04ba638, type: 3}
+  enemyKillledSfx: {fileID: 8300000, guid: 19f89c6e740e7447f9e12a8310d3e973, type: 3}
+  civilianKillledSfx: {fileID: 8300000, guid: df729d213c4be44a9b55cd109f5cd4f9, type: 3}
+  playerHurtSfx: {fileID: 8300000, guid: 72127805eb2bc4e7fbf2e02eca266cfa, type: 3}
   playerDiedSfx: {fileID: 0}
-  playerShootM1Sfx: {fileID: 0}
+  playerShootM1Sfx: {fileID: 8300000, guid: 54cfc80dc25efe54ba1cd6528f02d0c4, type: 3}
   playerShootM2Sfx: {fileID: 0}
   levelCompletedSfx: {fileID: 0}
-  victorySfx: {fileID: 0}
+  victorySfx: {fileID: 8300000, guid: 7478151cf36724a7dada558f746c3633, type: 3}
   gameOverSfx: {fileID: 0}
   enemyShootSfx: {fileID: 0}
   buttonClickedAudio: {fileID: 8300000, guid: 0bae3d28e791d004caec2ebeb95bbf0f, type: 3}

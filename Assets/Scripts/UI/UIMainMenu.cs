@@ -34,13 +34,13 @@ public class UIMainMenu : MonoBehaviour
     private void OnCompetitionBtnClicked()
     {
         gameModeData.selectedMode = GameMode.Competition;
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene("SelectionMenuScene");
     }
 
     private void OnEndlessBtnClicked()
     {
-        gameModeData.selectedMode = GameMode.Competition;
-        SceneManager.LoadScene("GameScene");
+        gameModeData.selectedMode = GameMode.Endless;
+        SceneManager.LoadScene("SelectionMenuScene");
     }
 
     private void OnOptionsBtnClicked()

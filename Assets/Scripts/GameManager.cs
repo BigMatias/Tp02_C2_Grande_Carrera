@@ -7,67 +7,84 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameDataSO gameDataSO;
     [SerializeField] private GameEventSO enemyDiedEvent;
     [SerializeField] private GameEventSO civilianDiedEvent;
-    [SerializeField] private CarController carController;
-    [SerializeField] private GasSystem gasSystem;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject optionsMenu;
-    [SerializeField] private GameObject gameOverMenu;
 
-    private bool gamePaused = false;
-    private int currentPlayerScore = 0;
-
-    public event Action onLevelCompleted;
-    public event Action<int> onScoreUpdated;
+    private CarController _carController;
+    private GasSystem _gasSystem;
+    private bool _gamePaused = false;
+    private bool _isEndless;
 
     private void Awake()
     {
         enemyDiedEvent?.Subscribe(onEnemyDied);
         civilianDiedEvent?.Subscribe(onCivilianDied);
-        carController.onPlayerDied += CarController_onPlayerDied;
-        gasSystem.onGasDepleted += GasSystem_onGasDepleted;
-
+        CarSpawner.OnCarSpawned += HandleCarSpawned;
         Time.timeScale = 1f;
     }
 
     private void Start()
     {
-        currentPlayerScore = 0;
-        onScoreUpdated?.Invoke(currentPlayerScore);
-
+        _isEndless = EndlessModeManager.Instance != null;
         SetCursorState(locked: true);
 
-        CompetitionManager.Instance.OnStateChanged += HandleGameStateChanged;
-        HandleGameStateChanged(CompetitionManager.Instance.State);
+        if (_isEndless)
+        {
+            EndlessModeManager.Instance.OnStateChanged += HandleEndlessStateChanged;
+            HandleEndlessStateChanged(EndlessModeManager.Instance.State);
+        }
+        else
+        {
+            CompetitionManager.Instance.OnStateChanged += HandleCompetitionStateChanged;
+            HandleCompetitionStateChanged(CompetitionManager.Instance.State);
+        }
     }
 
     private void OnDestroy()
     {
         enemyDiedEvent?.Unsubscribe(onEnemyDied);
         civilianDiedEvent?.Unsubscribe(onCivilianDied);
-        carController.onPlayerDied -= CarController_onPlayerDied;
+        CarSpawner.OnCarSpawned -= HandleCarSpawned;
 
-        CompetitionManager.Instance.OnStateChanged -= HandleGameStateChanged;
-    }
+        if (_carController != null)
+            _carController.onPlayerDied -= CarController_onPlayerDied;
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (_gasSystem != null)
+            _gasSystem.onGasDepleted -= GasSystem_onGasDepleted;
+
+        if (_isEndless)
         {
-            if (CompetitionManager.Instance != null &&
-                CompetitionManager.Instance.State == CompetitionState.Racing)
-            {
-                TogglePause();
-            }
+            if (EndlessModeManager.Instance != null)
+                EndlessModeManager.Instance.OnStateChanged -= HandleEndlessStateChanged;
+        }
+        else
+        {
+            if (CompetitionManager.Instance != null)
+                CompetitionManager.Instance.OnStateChanged -= HandleCompetitionStateChanged;
         }
     }
 
-    private void SetCursorState(bool locked)
+    private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
     {
-        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
-        Cursor.visible = !locked;
+        _gasSystem = gas;
+        _carController = gas.GetComponent<CarController>();
+
+        _carController.onPlayerDied += CarController_onPlayerDied;
+        _gasSystem.onGasDepleted += GasSystem_onGasDepleted;
     }
 
-    private void HandleGameStateChanged(CompetitionState state)
+    private void Update()
+    {
+        if (!Input.GetKeyDown(KeyCode.Escape)) return;
+
+        bool isRacing = _isEndless
+            ? EndlessModeManager.Instance?.State == EndlessState.Racing
+            : CompetitionManager.Instance?.State == CompetitionState.Racing;
+
+        if (isRacing) TogglePause();
+    }
+
+    private void HandleCompetitionStateChanged(CompetitionState state)
     {
         switch (state)
         {
@@ -75,12 +92,10 @@ public class GameManager : MonoBehaviour
                 Time.timeScale = 0f;
                 SetCursorState(locked: true);
                 break;
-
             case CompetitionState.Racing:
                 Time.timeScale = 1f;
                 SetCursorState(locked: true);
                 break;
-
             case CompetitionState.EvaluatingResult:
             case CompetitionState.ShowingResult:
                 Time.timeScale = 0f;
@@ -89,53 +104,66 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void HandleEndlessStateChanged(EndlessState state)
+    {
+        switch (state)
+        {
+            case EndlessState.Countdown:
+                Time.timeScale = 0f;
+                SetCursorState(locked: true);
+                break;
+            case EndlessState.Racing:
+                Time.timeScale = 1f;
+                SetCursorState(locked: true);
+                break;
+            case EndlessState.EvaluatingResult:
+            case EndlessState.GameOver:
+                Time.timeScale = 0f;
+                SetCursorState(locked: false);
+                break;
+        }
+    }
+
     private void onEnemyDied()
     {
-        currentPlayerScore += gameDataSO.EnemyKilledScore;
-        onScoreUpdated?.Invoke(currentPlayerScore);
+        if (CompetitionScoreSystem.Instance != null)
+            CompetitionScoreSystem.Instance.RegisterEnemyKill();
     }
 
     private void onCivilianDied()
     {
-        currentPlayerScore -= gameDataSO.CivilianKilledScore;
-        onScoreUpdated?.Invoke(currentPlayerScore);
+        if (CompetitionScoreSystem.Instance != null)
+            CompetitionScoreSystem.Instance.RegisterCivilianKill();
     }
 
     private void CarController_onPlayerDied()
     {
         Time.timeScale = 0f;
         SetCursorState(locked: false);
-        gameOverMenu.gameObject.SetActive(true);
-        if (CompetitionManager.Instance != null)
-        {
-            CompetitionManager.Instance.EndLevelWithFailure("Player Died");
-        }
+
+        if (!_isEndless)
+            CompetitionManager.Instance?.EndLevelWithFailure("Player Died");
     }
+
     private void GasSystem_onGasDepleted()
     {
-        if (CompetitionManager.Instance != null)
-        {
-            CompetitionManager.Instance.EndLevelWithFailure("Out of Gas");
-        }
+        if (!_isEndless)
+            CompetitionManager.Instance?.EndLevelWithFailure("Out of Gas");
     }
 
     public void TogglePause()
     {
-        gamePaused = !gamePaused;
+        _gamePaused = !_gamePaused;
 
-        if (gamePaused)
-        {
-            Time.timeScale = 0f;
-            SetCursorState(locked: false);
-            pauseMenu.gameObject.SetActive(true);
-            optionsMenu.gameObject.SetActive(false);
-        }
-        else
-        {
-            Time.timeScale = 1f;
-            SetCursorState(locked: true);
-            pauseMenu.gameObject.SetActive(false);
-            optionsMenu.gameObject.SetActive(false);
-        }
+        Time.timeScale = _gamePaused ? 0f : 1f;
+        SetCursorState(locked: !_gamePaused);
+        pauseMenu.gameObject.SetActive(_gamePaused);
+        if (!_gamePaused) optionsMenu.gameObject.SetActive(false);
+    }
+
+    private void SetCursorState(bool locked)
+    {
+        Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
+        Cursor.visible = !locked;
     }
 }

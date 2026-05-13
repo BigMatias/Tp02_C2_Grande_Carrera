@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CompetitionLevelConfigSO
   levelName: Level 1
   levelIndex: 1
-  sceneName: GameScene
-  requiredScore: 300
-  lapTimeLimit: 120
-  maxTimeBonusPoints: 500
-  timeBonusMultiplier: 5
+  sceneName: Track1
+  requiredScore: 200
+  lapTimeLimit: 100
+  maxTimeBonusPoints: 1000
+  timeBonusMultiplier: 20
   enemyBaseSpeed: 10
   maxActiveEnemies: 5
   maxActiveCivilians: 8

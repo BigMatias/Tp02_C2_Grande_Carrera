@@ -5,14 +5,11 @@ using System.Collections;
 
 public class GameHUD : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private CompetitionScoreSystem competitionScoreSystem;
-
     [Header("Puntaje")]
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI requiredScoreText;
-    [SerializeField] private TextMeshProUGUI totalScoreText; // solo endless
-    [SerializeField] private TextMeshProUGUI levelNumberText; // solo endless
+    [SerializeField] private TextMeshProUGUI totalScoreText; 
+    [SerializeField] private TextMeshProUGUI levelNumberText; 
 
     [Header("Tiempo")]
     [SerializeField] private TextMeshProUGUI timerText;
@@ -35,55 +32,55 @@ public class GameHUD : MonoBehaviour
     [SerializeField] private TextMeshProUGUI enemiesKilledText;
     [SerializeField] private TextMeshProUGUI civiliansKilledText;
 
-    [Header("Game Over (solo Endless)")]
-    [SerializeField] private GameObject gameOverPanel;
-    [SerializeField] private TextMeshProUGUI gameOverTotalScoreText;
-    [SerializeField] private TextMeshProUGUI gameOverLevelsText;
-    [SerializeField] private Button returnToMenuButton;
-
+    private CompetitionScoreSystem competitionScoreSystem;
+    
     private Coroutine _feedbackCoroutine;
     private bool _isEndless;
+    
 
-    private void OnEnable()
+    private void Start()
     {
+        competitionScoreSystem = CompetitionScoreSystem.Instance;
+        Debug.Log($"[GameHUD] competitionScoreSystem: {competitionScoreSystem}");
+
         competitionScoreSystem.OnScoreChanged += HandleScoreChanged;
         competitionScoreSystem.OnEnemyKilled += HandleEnemyKilled;
         competitionScoreSystem.OnCivilianKilled += HandleCivilianKilled;
         competitionScoreSystem.OnTimeBonusAwarded += HandleTimeBonus;
-    }
 
-    private void OnDisable()
-    {
-        competitionScoreSystem.OnScoreChanged -= HandleScoreChanged;
-        competitionScoreSystem.OnEnemyKilled -= HandleEnemyKilled;
-        competitionScoreSystem.OnCivilianKilled -= HandleCivilianKilled;
-        competitionScoreSystem.OnTimeBonusAwarded -= HandleTimeBonus;
-    }
-
-    private void Start()
-    {
         _isEndless = EndlessModeManager.Instance != null;
+        Debug.Log($"[GameHUD] isEndless: {_isEndless}");
+        Debug.Log($"[GameHUD] CompetitionManager: {CompetitionManager.Instance}");
+        Debug.Log($"[GameHUD] EndlessModeManager: {EndlessModeManager.Instance}");
 
         if (_isEndless)
             InitEndless();
         else
             InitCompetition();
 
+        Debug.Log($"[GameHUD] Estado actual: {(_isEndless ? EndlessModeManager.Instance?.State.ToString() : CompetitionManager.Instance?.State.ToString())}");
+
         pointsFeedbackText.gameObject.SetActive(false);
         countdownPanel.SetActive(false);
-        if (gameOverPanel) gameOverPanel.SetActive(false);
         UpdateScoreUI(0);
     }
 
     private void OnDestroy()
     {
+        if (competitionScoreSystem != null)
+        {
+            competitionScoreSystem.OnScoreChanged -= HandleScoreChanged;
+            competitionScoreSystem.OnEnemyKilled -= HandleEnemyKilled;
+            competitionScoreSystem.OnCivilianKilled -= HandleCivilianKilled;
+            competitionScoreSystem.OnTimeBonusAwarded -= HandleTimeBonus;
+        }
+        
         if (_isEndless)
         {
             if (EndlessModeManager.Instance == null) return;
             EndlessModeManager.Instance.OnTimerUpdated -= HandleTimerUpdated;
             EndlessModeManager.Instance.OnStateChanged -= HandleEndlessStateChanged;
             EndlessModeManager.Instance.OnTotalScoreUpdated -= HandleTotalScoreUpdated;
-            EndlessModeManager.Instance.OnGameOver -= HandleGameOver;
         }
         else
         {
@@ -101,10 +98,11 @@ public class GameHUD : MonoBehaviour
         if (requiredScoreText)
             requiredScoreText.text = CompetitionManager.Instance.CurrentConfig.requiredScore.ToString();
 
-        // Ocultamos lo que es solo de endless
         if (totalScoreText) totalScoreText.gameObject.SetActive(false);
         if (levelNumberText) levelNumberText.gameObject.SetActive(false);
-        if (gameOverPanel) gameOverPanel.SetActive(false);
+
+        HandleCompetitionStateChanged(CompetitionManager.Instance.State);
+        UpdateScoreUI(competitionScoreSystem.CurrentScore);
     }
 
     private void InitEndless()
@@ -112,14 +110,11 @@ public class GameHUD : MonoBehaviour
         EndlessModeManager.Instance.OnTimerUpdated += HandleTimerUpdated;
         EndlessModeManager.Instance.OnStateChanged += HandleEndlessStateChanged;
         EndlessModeManager.Instance.OnTotalScoreUpdated += HandleTotalScoreUpdated;
-        EndlessModeManager.Instance.OnGameOver += HandleGameOver;
 
-        if (returnToMenuButton)
-            returnToMenuButton.onClick.AddListener(EndlessModeManager.Instance.ReturnToMainMenu);
-
-        // Ocultamos lo que es solo de competición
         if (requiredScoreText) requiredScoreText.gameObject.SetActive(false);
 
+        HandleEndlessStateChanged(EndlessModeManager.Instance.State);
+        UpdateScoreUI(competitionScoreSystem.CurrentScore);
         UpdateLevelUI();
     }
 
@@ -230,21 +225,7 @@ public class GameHUD : MonoBehaviour
                 break;
         }
     }
-
-    // ── Game Over ──────────────────────────────────────────────────
-
-    private void HandleGameOver()
-    {
-        if (gameOverPanel == null) return;
-
-        gameOverPanel.SetActive(true);
-
-        if (gameOverTotalScoreText)
-            gameOverTotalScoreText.text = EndlessModeManager.Instance.TotalScore.ToString("N0");
-
-        if (gameOverLevelsText)
-            gameOverLevelsText.text = $"Niveles completados: {EndlessModeManager.Instance.CurrentLevelNumber - 1}";
-    }
+    
 
     // ── Feedback ───────────────────────────────────────────────────
 

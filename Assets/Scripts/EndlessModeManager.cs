@@ -8,7 +8,6 @@ public class EndlessModeManager : MonoBehaviour
 {
     [Header("Configuración")]
     [SerializeField] private CompetitionLevelConfigSO[] levelConfigs;
-    [SerializeField] private CarController carController;
     [SerializeField] private string mainMenuScene = "MainMenuScene";
 
     [Header("Timing")]
@@ -16,7 +15,8 @@ public class EndlessModeManager : MonoBehaviour
     [SerializeField] private float resultScreenDelay = 1.5f;
 
     public static EndlessModeManager Instance { get; private set; }
-
+    
+    private CarController _carController;
     private EndlessState _state = EndlessState.Idle;
     private int _totalScore = 0;
     private int _currentLevelNumber = 0;
@@ -48,21 +48,21 @@ public class EndlessModeManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        CarSpawner.OnCarSpawned += HandleCarSpawned;
     }
 
     private void Start()
     {
-        if (carController != null)
-            carController.onPlayerDied += HandlePlayerDied;
-
         ShuffleIndexes();
         LoadNextLevel();
     }
 
     private void OnDestroy()
     {
-        if (carController != null)
-            carController.onPlayerDied -= HandlePlayerDied;
+        CarSpawner.OnCarSpawned -= HandleCarSpawned;
+
+        if (_carController != null)
+            _carController.onPlayerDied -= HandlePlayerDied;
     }
 
     private void Update()
@@ -78,7 +78,16 @@ public class EndlessModeManager : MonoBehaviour
             HandleTimeOut();
         }
     }
+    
+    private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
+    {
+        if (_carController != null)
+            _carController.onPlayerDied -= HandlePlayerDied;
 
+        _carController = gas.GetComponent<CarController>();
+        _carController.onPlayerDied += HandlePlayerDied;
+    }
+    
     private void ShuffleIndexes()
     {
         _shuffledIndexes.Clear();
@@ -128,17 +137,6 @@ public class EndlessModeManager : MonoBehaviour
         if (CompetitionScoreSystem.Instance != null)
             CompetitionScoreSystem.Instance.Initialize(_currentConfig);
 
-        // Re-buscar el CarController en la nueva escena
-        CarController found = FindFirstObjectByType<CarController>();
-        if (found != null && found != carController)
-        {
-            if (carController != null)
-                carController.onPlayerDied -= HandlePlayerDied;
-
-            carController = found;
-            carController.onPlayerDied += HandlePlayerDied;
-        }
-
         SetState(EndlessState.Countdown);
         yield return new WaitForSecondsRealtime(countdownBeforeStart);
 
@@ -168,7 +166,7 @@ public class EndlessModeManager : MonoBehaviour
 
         StartCoroutine(ProceedAfterDelay());
     }
-
+    
     private void HandlePlayerDied()
     {
         if (_state != EndlessState.Racing) return;
@@ -208,7 +206,13 @@ public class EndlessModeManager : MonoBehaviour
         _state = newState;
         OnStateChanged?.Invoke(_state);
     }
+    
+    public void SetInitialTrack(int trackIndex)
+    {
+        _shufflePointer = trackIndex;
+    }
 }
+
 
 public enum EndlessState
 {
