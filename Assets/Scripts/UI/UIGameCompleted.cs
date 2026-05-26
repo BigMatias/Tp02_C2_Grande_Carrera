@@ -25,6 +25,7 @@ public class UIGameCompleted : MonoBehaviour
         mainMenuBtn.onClick.RemoveListener(OnNoBtnClicked);
     }
 
+    // Warning: Media - Nombres de escena ("GameScene", "MainMenuScene") hardcodeados. Si se renombra una escena, el botón rompe en silencio.
     private void OnYesBtnClicked()
     {
         SceneManager.LoadScene("GameScene");

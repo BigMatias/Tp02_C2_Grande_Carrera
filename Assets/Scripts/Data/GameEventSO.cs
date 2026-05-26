@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 
 [CreateAssetMenu(fileName = "New Game Event", menuName = "Events/Game Event")]
+// Suggestion: Alta - Buena implementación del patrón SO-Event-Channel. Bien hecho.
 public class GameEventSO : ScriptableObject
 {
     private event Action onEventRaised;

@@ -18,6 +18,7 @@ public class Wrench : MonoBehaviour, IPooleable
 
     public void Deactivate() => gameObject.SetActive(false);
 
+    // Warning: Baja - wrenchDamage hardcoded como [SerializeField] en lugar de venir de CitizenDataSO.EnemyProjectileDamage (que ya existe).
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.layer == (int)Layers.Player)

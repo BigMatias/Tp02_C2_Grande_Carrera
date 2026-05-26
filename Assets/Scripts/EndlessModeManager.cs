@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// Suggestion: Alta - Como en CompetitionManager: duplicación masiva de código (~80%). Una clase abstracta RaceModeManager con StartLevel(), OnPlayerFinishedLap(), HandleTimeOut() en común y polimorfismo para "qué hacer al terminar nivel" resolvería el smell.
 public class EndlessModeManager : MonoBehaviour
 {
     [Header("Configuración")]

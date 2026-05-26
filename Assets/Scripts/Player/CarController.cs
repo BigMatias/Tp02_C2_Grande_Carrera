@@ -2,9 +2,11 @@ using System;
 using System.Collections;
 using UnityEngine;
 
+// Suggestion: Alta - Esta clase es una "God Class" que viola el principio de Responsabilidad Única (SRP).
 public class CarController : MonoBehaviour
 {
     [Header("References")]
+    // Warning: Media - Estas variables son estado interno (no input del usuario en el Inspector); porque [SerializeField]. Nunca más.
     [SerializeField] private float inputAcceleration;
     [SerializeField] private float inputDirection;
     [SerializeField] private float inputBreak;
@@ -72,6 +74,7 @@ public class CarController : MonoBehaviour
 
     private void Awake()
     {
+        // Bug: Alta - No se valida que GetComponent<HealthSystemV2>() devuelva no-null. Usar Require Component
         healthSystemV2 = GetComponent<HealthSystemV2>();
         gasSystem = GetComponent<GasSystem>();
         rb = GetComponent<Rigidbody>();
@@ -89,6 +92,7 @@ public class CarController : MonoBehaviour
         inputAcceleration = Input.GetAxis("Vertical") * carConfigurationSO.MotorForce;
         inputDirection = Input.GetAxis("Horizontal") * carConfigurationSO.DirectionForce;
         inputBreak = Input.GetAxisRaw("Break") * carConfigurationSO.BreakForce;
+        // Warning: Media - activeCam se recalcula cada frame leyendo gameObject.activeSelf. Mejor cachearlo en SwitchPerspective() cuando realmente cambia la cámara.
         activeCam = firstPersonCamera.gameObject.activeSelf ? firstPersonCamera : thirdPersonCamera;
 
         SwitchPerspective();
@@ -160,9 +164,10 @@ public class CarController : MonoBehaviour
                 hs.TakeDamage(carConfigurationSO.EnemyCollideDamage);
             }
         }
-        
+
     }
 
+    // Suggestion: Baja - La tecla V está hardcodeada. 
     private void SwitchPerspective()
     {
         if (Input.GetKeyDown(KeyCode.V))
@@ -206,11 +211,13 @@ public class CarController : MonoBehaviour
         firstPersonCamera.transform.localRotation = Quaternion.Euler(pitchFirst, yawFirst, 0);
     }
 
+    // Bug: Media - Si ambas cámaras están desactivadas al iniciar la escena, activeCam queda null
     private void RotateTurret()
     {
         Ray ray = new Ray(shootPoint.position, activeCam.transform.forward);
         RaycastHit hit;
 
+        // Warning: Baja - El rango 100f está hardcodeado. Debería leerse de TurretDataSO 
         if (Physics.Raycast(ray, out hit, 100f))
             targetPoint = hit.point;
         else
@@ -256,6 +263,7 @@ public class CarController : MonoBehaviour
 
             if (Physics.Raycast(ray, out hit, turretDataSO.M1ShootRange, hitLayers))
             {
+                // Warning: Baja - Debug.Log dentro del flujo de gameplay. 
                 Debug.Log("Impacto en: " + hit.collider.name);
                 endPoint = hit.point;
 

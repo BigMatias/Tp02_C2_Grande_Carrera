@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// Suggestion: Media - CheckpointSystem es un Singleton MÁS en una arquitectura ya sobrecargada de Singletons (CompetitionManager, EndlessModeManager, CompetitionScoreSystem, PoolManager, AudioManager). Abuso del patrón → acoplamiento global y dificultad para testear.
 public class CheckpointSystem : MonoBehaviour
 {
     public static CheckpointSystem Instance { get; private set; }
@@ -68,6 +69,7 @@ public class CheckpointSystem : MonoBehaviour
         playerRigidbody = gas.GetComponent<Rigidbody>();
     }
 
+    // Warning: Media - GameObject.FindGameObjectsWithTag es costoso (busca en toda la escena). Ideal sería siempre referenciar el array desde el Inspector y forzar la asignación con asserts.
     private void InitializeCheckpoints()
     {
         if (checkpoints == null || checkpoints.Length == 0)
@@ -217,6 +219,8 @@ public class CheckpointSystem : MonoBehaviour
             _respawnFrozen = false;
     }
 
+    // Warning: Alta - GameObject.Find("StartPosition") es costoso (recorre todo el árbol de escena) y se ejecuta CADA respawn antes de tener checkpoints pasados.
+    // Suggestion: Media - "StartPosition" como string mágico es frágil; 
     private Vector3 GetStartPosition()
     {
         GameObject start = GameObject.Find("StartPosition");

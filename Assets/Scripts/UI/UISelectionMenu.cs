@@ -113,6 +113,8 @@ public class UISelectionMenu : MonoBehaviour
     }
 
 
+    // Warning: Media - Modificar un ScriptableObject en runtime y serializarlo con SetDirty PERSISTE el valor entre sesiones del editor 
+    // Warning: Baja - "GameScene" hardcoded. Si en el futuro hay más escenas de juego (una por modo), conviene seleccionarla por tipo de modo o SO.
     private void OnConfirm()
     {
         carSelectionData.selectedCarIndex = _currentCarIndex;

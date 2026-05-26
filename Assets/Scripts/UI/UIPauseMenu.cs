@@ -38,6 +38,8 @@ public class UIPauseMenu : MonoBehaviour
         optionsMenu.gameObject.SetActive(true);
     }
 
+    // Bug: Alta - LoadScene directo a MainMenuScene sin pasar por CompetitionManager.ReturnToMainMenu() ni EndlessModeManager.ReturnToMainMenu(). A la próxima partida se duplican.
+    // Bug: Media - Time.timeScale queda en 0 porque la pausa lo seteo; al cargar MainMenu el menú renderea con timeScale=0, animaciones congeladas.
     private void OnExitBtnClicked()
     {
         SceneManager.LoadScene("MainMenuScene");

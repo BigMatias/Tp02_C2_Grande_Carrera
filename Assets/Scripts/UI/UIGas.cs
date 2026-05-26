@@ -23,6 +23,7 @@ public class UIGas : MonoBehaviour
         }
     }
 
+    // Suggestion: Baja - Esta clase y UILife son funcionalmente idénticas (escuchan un evento y actualizan una Image.fillAmount). Una clase genérica `UIBar`.
     private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
     {
         _target = gas;

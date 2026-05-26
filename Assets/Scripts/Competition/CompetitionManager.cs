@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using static CompetitionScoreSystem;
 
+// Suggestion: Alta - El TP exige "lograr una X cantidad de vueltas completas (configurable antes de empezar el nivel)". Acá la "carrera" se gana cruzando UNA vez la meta. No hay sistema de vueltas múltiples.
+// Suggestion: Media - CompetitionManager y EndlessModeManager comparten ~80% de lógica (countdown, racing, evaluación, GameOver). Debería existir una clase base abstracta RaceModeManager para evitar duplicar código.
 public class CompetitionManager : MonoBehaviour
 {
     [Header("Configuración de Niveles")]
@@ -31,6 +33,7 @@ public class CompetitionManager : MonoBehaviour
     public CompetitionState State => _state;
     public int CurrentLevelIndex => _currentLevelIndex;
     public float TimeRemaining => Mathf.Max(0f, CurrentConfig.lapTimeLimit - _lapTimer);
+    // Bug: Media - CurrentConfig no valida que _currentLevelIndex esté dentro de bounds. 
     public CompetitionLevelConfigSO CurrentConfig => levelConfigs[_currentLevelIndex];
     public bool IsLastLevel => _currentLevelIndex >= levelConfigs.Length - 1;
     public CompetitionResult LastResult => _lastResult;
@@ -197,6 +200,8 @@ public class CompetitionManager : MonoBehaviour
         StartLevel(_currentLevelIndex);
     }
 
+    // Bug: Alta - Llamar Destroy(gameObject) y luego SceneManager.LoadScene puede dejar el singleton "Instance" colgando. Raro destruir el objeto.
+    // Warning: Media - Time.timeScale puede haber quedado en 0 (pause/result); al ir al main menu sin restaurarlo a 1 en un propio scenemanager
     public void ReturnToMainMenu()
     {
         SetState(CompetitionState.Idle);

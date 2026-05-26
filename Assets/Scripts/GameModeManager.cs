@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Warning: Alta - El archivo se llama GameModeManager.cs pero la clase es GameModeBootstrapper.
 public class GameModeBootstrapper : MonoBehaviour
 {
     [SerializeField] private GameModeDataSO gameModeData;

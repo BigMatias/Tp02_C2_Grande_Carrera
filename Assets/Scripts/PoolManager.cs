@@ -85,6 +85,7 @@ public class PoolManager : MonoBehaviour
         return container.transform;
     }
 
+    // Warning: Baja - Si no existe pool para el tipo solicitado, se devuelve null sin loguear. 
     public T Get<T>() where T : MonoBehaviour, IPooleable
     {
         Type type = typeof(T);
@@ -160,6 +161,8 @@ public class PoolWrapper<T> : IPool where T : MonoBehaviour, IPooleable
     public void Return(T obj) => _inner.Return(obj);
 }
 
+// Warning: Media - PoolFactory.Create usa Activator.CreateInstance vía reflexión. Es válido para inicialización única, pero podría documentarse mejor el contrato (qué tipo se espera).
+// Suggestion: Baja - Tres clases (PoolManager, PoolWrapper, PoolFactory + interfaces IPool, IPooleable) en un solo archivo. Separar en archivos individuales mejoraría la navegación.
 public static class PoolFactory
 {
     public static IPool Create(Type componentType, GameObject prefab,

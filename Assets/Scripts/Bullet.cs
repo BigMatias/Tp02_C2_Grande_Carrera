@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Error: Alta - El archivo entero está comentado. Bullet.cs no hace nada y, sin embargo, sigue compilando como MonoBehaviour vacío.
 public class Bullet : MonoBehaviour
 {
    /* [SerializeField] private float damage = 50;

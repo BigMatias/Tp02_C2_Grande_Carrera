@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+// Suggestion: Media - Los estados (StateIdle, StateClapping, etc.) están todos en este mismo archivo. 
 public abstract class StateBase
 {
     protected static readonly int State = Animator.StringToHash("State");
@@ -89,6 +90,7 @@ public class StateWalking : StateBase
     }
 }
 
+// Warning: Media - shootDuration está hardcoded a 1.5f acá; debería venir de CitizenDataSO
 public class StateShoot : StateBase
 {
     private float timer;

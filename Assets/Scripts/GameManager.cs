@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+// Suggestion: Media - GameManager está acoplado a CompetitionManager y EndlessModeManager mediante if/else (_isEndless) repartidos por toda la clase. Debería abstraerse en una interfaz IGameModeManager con polimorfismo, evitando los branches en HandleCompetitionStateChanged / HandleEndlessStateChanged (lógica casi idéntica).
 public class GameManager : MonoBehaviour
 {
     [Header("References")]
@@ -64,6 +65,8 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Warning: Media - Recibir el CarController vía GetComponent del gasSystem mezcla responsabilidades. 
+    // Bug: Media - No se valida si gas o health son null (CarSpawner.Awake los obtiene de GetComponent, podrían no existir en el prefab).
     private void HandleCarSpawned(GasSystem gas, HealthSystemV2 health)
     {
         _gasSystem = gas;
@@ -151,6 +154,7 @@ public class GameManager : MonoBehaviour
             CompetitionManager.Instance?.EndLevelWithFailure("Out of Gas");
     }
 
+    // Suggestion: Baja - pauseMenu y optionsMenu son GameObject; el ".gameObject" en pauseMenu.gameObject.SetActive es redundante.
     public void TogglePause()
     {
         _gamePaused = !_gamePaused;

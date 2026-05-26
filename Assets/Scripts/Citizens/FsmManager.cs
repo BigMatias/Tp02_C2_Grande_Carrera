@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+// Error: Alta - El TP exige que Enemies y Civilians "deben heredar de la clase base abstracta Vehicle". FsmManager es un MonoBehaviour suelto que mezcla NPC enemy y civilian via un enum (npcType). No hay clase base compartida con Player. Se pierde el criterio POO
+// Suggestion: Alta - Lo correcto sería un abstract class NPC : Vehicle y dos subclases EnemyNPC / CivilianNPC con override del comportamiento, en lugar de switchear por enum dentro de un único MonoBehaviour.
 public class FsmManager : MonoBehaviour
 {
     [SerializeField] private CitizenDataSO citizenDataSO;
@@ -20,6 +22,7 @@ public class FsmManager : MonoBehaviour
     private float shootCdAux;
     private HealthSystemV2 healthSystemV2;
 
+    // Bug: Alta - GetComponent<HealthSystemV2>() sin null-check; si el prefab del NPC no tiene HealthSystemV2, la siguiente línea reventará con NullReferenceException.
     private void Awake()
     {
         healthSystemV2 = GetComponent<HealthSystemV2>();
@@ -61,6 +64,8 @@ public class FsmManager : MonoBehaviour
         healthSystemV2.onDie -= HealthSystem_onDie;
     }
 
+    // Warning: Alta - Destroy(gameObject) en lugar de devolverlo a un Pool. El TP exige Object Pool propio "para cualquier objeto que se genere en runtime y en cantidad"
+    // Suggestion: Media - Antes de destruir habría que pasar el FSM a StateDie (animación + audio)
     private void HealthSystem_onDie()
     {
         switch (npcType)
@@ -100,6 +105,8 @@ public class FsmManager : MonoBehaviour
         return null;
     }
 
+    // Suggestion: Media - El método se llama "Enemy()" (igual que el tipo enum) y maneja un cooldown de disparo. 
+    // Warning: Baja - Esta lógica corre en Update para TODOS los NPC (incluyendo civiles), aunque el if descarta civiles.
     public void Enemy()
     {
         if (npcType == NpcType.Enemy && currentState.stateType != StateType.Shoot)
@@ -114,6 +121,7 @@ public class FsmManager : MonoBehaviour
         }
     }
 
+    // Warning: Alta - distance=10f y arcHeight=5f hardcodeados. 
     public void ThrowWrench()
     {
         enemyShootEvent.Raise();
@@ -132,6 +140,7 @@ public class FsmManager : MonoBehaviour
             wrench.transform.rotation = Quaternion.identity;
             wrench.Activate();
 
+            // Warning: Media - GetComponent<Rigidbody>() ejecutado cada disparo. Wrench podría saber su RB
             Rigidbody rb = wrench.GetComponent<Rigidbody>();
             Vector3 dir = target - start;
             Vector3 dirXZ = new Vector3(dir.x, 0, dir.z);

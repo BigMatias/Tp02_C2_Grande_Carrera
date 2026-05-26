@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+// Error: Alta - Esta clase está DUPLICADA con HealthSystemV2 y NO se usa en ningún script del proyecto 
 public class HealthSystem : MonoBehaviour
 {
     [SerializeField] private float maxLife = 100;

@@ -23,6 +23,7 @@ public class GasSystem : MonoBehaviour
         onGasUpdated?.Invoke(gas, carConfigurationSO.TotalGas);
     }
 
+    // Warning: Baja - El parámetro se llama igual que el campo `gas`, obligando a usar `this.gas` para diferenciar. Renombrar el parámetro.
     public void ConsumeGas(float gas)
     {
 

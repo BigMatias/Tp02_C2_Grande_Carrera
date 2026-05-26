@@ -3,7 +3,7 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class BombProjectile : MonoBehaviour, IPooleable
 {
-    [Header("Explosión")]
+    [Header("Explosiï¿½n")]
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float explosionDamage = 100f;
     [SerializeField] private LayerMask hitLayers;

@@ -9,6 +9,7 @@ public class GasStation : MonoBehaviour
 
     private IEnumerator rechargingGasCoroutine;
 
+    // Suggestion: Baja - La variable se llama "carController" pero es de tipo GasSystem. Nomenclatura inconsistente.
     private void OnTriggerEnter(Collider other)
     {
         GasSystem carController = other.GetComponent<GasSystem>();

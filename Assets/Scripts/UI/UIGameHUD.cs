@@ -3,6 +3,9 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 
+// Warning: Alta - El archivo se llama UIGameHUD.cs pero la clase es GameHUD.
+// Warning: Media - "velocímetro" en la UI. 
+// Suggestion: Media - Esta clase tiene 12 referencias [SerializeField] de UI y maneja score, timer, kills, countdown, feedback de puntos. Está empezando a ser God-UI; subdividir en HudScore, HudTimer, HudFeedback.
 public class GameHUD : MonoBehaviour
 {
     [Header("Puntaje")]
@@ -37,7 +40,6 @@ public class GameHUD : MonoBehaviour
     private Coroutine _feedbackCoroutine;
     private bool _isEndless;
     
-
     private void Start()
     {
         competitionScoreSystem = CompetitionScoreSystem.Instance;

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+// Error: Media - El campo gameOverPanel y gameManager está serializado pero nunca se usa
 public class UIGameOver : MonoBehaviour
 {
     [SerializeField] private GameObject gameOverPanel;
@@ -26,6 +27,7 @@ public class UIGameOver : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
+    // Bug: Alta - Inconsistencia: acá la escena de menú es "MainMenu" pero en otros scripts ("UIGameCompleted", "UIPauseMenu", "EndlessModeManager", "UISelectionMenu") es "MainMenuScene".
     private void OnNoBtnClicked()
     {
         SceneManager.LoadScene("MainMenu");

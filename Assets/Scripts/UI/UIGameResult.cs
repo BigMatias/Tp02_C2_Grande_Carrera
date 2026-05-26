@@ -40,6 +40,7 @@ public class UIGameResult : MonoBehaviour
 
     private bool _isEndless;
 
+    // Suggestion: Baja - Suscripción defensiva con ?.onClick es ok, pero la desuscripción en OnDisable. Asimetrico.
     private void Awake()
     {
         nextLevelButton?.onClick.AddListener(OnNextLevel);

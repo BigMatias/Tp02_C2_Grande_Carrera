@@ -10,7 +10,7 @@ public class CheckpointFinish : MonoBehaviour
     [SerializeField] private AudioSource finishSound;
 
     [Header("Visual de estado")]
-    [Tooltip("Renderer cuyo color cambia según si la meta está habilitada o no.")]
+    [Tooltip("Renderer cuyo color cambia segï¿½n si la meta estï¿½ habilitada o no.")]
     [SerializeField] private MeshRenderer finishLineRenderer;
     [SerializeField] private Color lockedColor = new Color(0.9f, 0.2f, 0.1f, 0.7f);
     [SerializeField] private Color unlockedColor = new Color(0.1f, 0.9f, 0.3f, 0.7f);
@@ -24,6 +24,8 @@ public class CheckpointFinish : MonoBehaviour
 
         SetFinishLineColor(lockedColor);
     }
+    // Bug: Alta - Si CheckpointSystem.Instance fue destruido antes (cambio de escena, cierre de juego), el desuscribirse acÃ¡ lanza NRE. Validar Instance != null antes de "-=".
+    // Warning: Baja - SuscripciÃ³n se hace en Start y desuscripciÃ³n en OnDisable. Es asimÃ©trico.
     private void OnDisable()
     {
         CheckpointSystem.Instance.OnAllCheckpointsPassed -= HandleAllCheckpointsPassed;
@@ -48,7 +50,7 @@ public class CheckpointFinish : MonoBehaviour
         if (CompetitionManager.Instance != null)
         {
             CompetitionManager.Instance.OnPlayerFinishedLap();
-            Debug.Log("[CheckpointFinish] Meta cruzada válidamente.");
+            Debug.Log("[CheckpointFinish] Meta cruzada vï¿½lidamente.");
         }
         else
         {

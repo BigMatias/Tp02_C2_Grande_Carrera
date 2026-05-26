@@ -1,5 +1,7 @@
 using UnityEngine;
 
+// Suggestion: Media - El TP exige "3 tipos de volumen: Background, VFX y UI", pero esta clase y UIOptions controlan Master/Sfx/Music. Falta el control independiente de UI volume;
+// Suggestion: Media - AudioManager hace tanto lógica de eventos (suscripciones a CarController, eventos de muerte) como sonido. Mezcla responsabilidades.
 public class AudioManager : MonoBehaviour
 {
     [Header("References")]
@@ -8,6 +10,7 @@ public class AudioManager : MonoBehaviour
 
     [Header("AudioClips")]
     [SerializeField] private AudioClip[] music;
+    // Warning: Baja - Typo "Killled" (tres L) en los nombres de campo
     [SerializeField] private AudioClip enemyKillledSfx;
     [SerializeField] private AudioClip civilianKillledSfx;
     [SerializeField] private AudioClip playerHurtSfx;
@@ -48,6 +51,7 @@ public class AudioManager : MonoBehaviour
         PlayRandomMusic();
     }
 
+    // Warning: Media - Verificar isPlaying en Update CADA frame es un acceso nativo a Unity. Mejor solución: AudioSource.loop = false + coroutine que espera audioSourceMusic.clip.length y agenda el próximo PlayRandomMusic. Reduce overhead y es más limpio.
     private void Update()
     {
         if (!audioSourceMusic.isPlaying)
@@ -105,6 +109,7 @@ public class AudioManager : MonoBehaviour
         audioSourceSfx.PlayOneShot(result.Passed ? levelCompletedSfx : gameOverSfx);
     }
 
+    // Error: Baja - Método vacío suscrito al evento onPlayerCrashed.
     private void CarController_onPlayerCrashed(float arg1, Transform arg2) { }
     private void PlayEnemyShootSfx() => audioSourceSfx.PlayOneShot(enemyShootSfx);
     private void PlayEnemyDiedSfx() => audioSourceSfx.PlayOneShot(enemyKillledSfx);

@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 681ce23e5658f571bb8690075ab351fc, type: 3}
   m_Name: CarSelectionData
   m_EditorClassIdentifier: Assembly-CSharp::CarSelectionDataSO
-  selectedCarIndex: 2
+  selectedCarIndex: 0
   selectedTrackIndex: 0

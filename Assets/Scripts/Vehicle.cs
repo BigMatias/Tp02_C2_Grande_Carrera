@@ -27,6 +27,7 @@ public class Vehicle : MonoBehaviour, IDamageable
         {
             onDamage?.Invoke(life, carConfigurationSO.MaxLife);
         }
+        // Warning: Baja - Debug.Log con un float crudo, sin contexto ("damage: X"). Spam en consola sin utilidad de debug.
         Debug.Log(damage);
     }
 

@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [Header("Configuración")]
+    [Header("Configuraciï¿½n")]
     public int checkpointIndex = 0;
 
     [Header("Feedback Visual")]
@@ -25,6 +25,8 @@ public class Checkpoint : MonoBehaviour
         CheckpointSystem.Instance?.RegisterCheckpointReached(checkpointIndex);
     }
 
+    // Warning: Baja - Debug.Log(state) en cada cambio de color genera spam de consola sin contexto. Borrar.
+    // Warning: Alta - Acceder a .material crea una instancia Ãºnica del material en runtime. Si se quiere cambiar color sin instanciar, usar MaterialPropertyBlock.
     public void SetVisualState(CheckpointVisualState state)
     {
         Debug.Log(state);

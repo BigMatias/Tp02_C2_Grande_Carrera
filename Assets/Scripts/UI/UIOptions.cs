@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
+// Error: Alta - El TP exige "controlar los 3 tipos de volumen: Background, VFX y UI". Acá hay Master/Sfx/Music. 
+// Bug: Alta - El panel de Opciones debe ser "un prefab idéntico para Main Menu y Gameplay" (TP).
 public class UIOptions : MonoBehaviour
 {
     [Header("References")]
